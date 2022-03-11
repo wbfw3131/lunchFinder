@@ -60,6 +60,13 @@ def dayLunch(day: str = "today", school: str = "Provo High") -> str:
             for item in menu["items"]:
                 food.append(item["product"]["name"].strip())
             # makeLunch(food)
+
+            if food == []:
+                if datetime.date().month(date) == (datetime.date().today().month() + 1): # and datetime.date().today().day() < 20:
+                    return "I don't think the lunch for next month is posted yet"
+                else:
+                    return "I don't think there's school on that day"
+
             return makeLunch(food)
 
 
@@ -86,5 +93,5 @@ def makeLunch(foodList: list) -> str:
 
 if __name__ == "__main__":
     #print(dayLunch(day = "3/4/2022", school="Dixon Middle"))
-    #print(dayLunch("3/3/2022"))
-    print(dayLunch())
+    print(dayLunch("4/1/2022"))
+    #print(dayLunch())
