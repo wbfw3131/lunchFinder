@@ -20,8 +20,8 @@ def main():
 
 
     response = webhook.execute()
-    deleteLast(webhook)
-    storeNew(response)
+    # deleteLast(webhook)
+    # storeNew(response)
 
 
 def deleteLast(webhook: DiscordWebhook):
@@ -35,4 +35,4 @@ def storeNew(webhook: DiscordWebhook):
     f.write(json.dumps({'lastMessage': webhook}))
 
 if __name__ == "__main__":
-    pass
+    main()
