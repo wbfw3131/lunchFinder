@@ -24,6 +24,8 @@ def dayLunch(day: str = "today", school: str = "Provo High") -> str:
 
     if datetime.date.weekday(date) == 5 or datetime.date.weekday(date) == 6:
         return "There's no school on this day."
+    # elif date.month >= (datetime.date.today().month + 1): # and datetime.date().today().day() < 20:
+    #     return "I don't think the lunch for that month is posted yet"
 
     endpoint = "https://api.isitesoftware.com/graphql"
     headers = {
@@ -62,8 +64,8 @@ def dayLunch(day: str = "today", school: str = "Provo High") -> str:
             # makeLunch(food)
 
             if food == []:
-                if datetime.date().month(date) == (datetime.date().today().month() + 1): # and datetime.date().today().day() < 20:
-                    return "I don't think the lunch for next month is posted yet"
+                if date.month >= (datetime.date.today().month + 1): # and datetime.date().today().day() < 20:
+                    return "I don't think the lunch for that month is posted yet"
                 else:
                     return "I don't think there's school on that day"
 
@@ -93,5 +95,5 @@ def makeLunch(foodList: list) -> str:
 
 if __name__ == "__main__":
     #print(dayLunch(day = "3/4/2022", school="Dixon Middle"))
-    print(dayLunch("4/1/2022"))
+    print(dayLunch("4/4/2022"))
     #print(dayLunch())
