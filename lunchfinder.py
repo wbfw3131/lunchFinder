@@ -114,4 +114,4 @@ def getSchoolCodes(schoolName: str) -> (str, str):
 if __name__ == "__main__":
     #print(dayLunch(day = "3/4/2022", school="Dixon Middle"))
     #print(dayLunch("7/4/2022"))
-    print(dayLunch(school="Dixon Middle"))
+    print(dayLunch())
