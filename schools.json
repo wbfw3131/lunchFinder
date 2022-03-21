@@ -1,0 +1,6 @@
+{
+    "schools":[
+        {"name": "Provo High", "siteCode1": 550, "siteCode2": 368},
+        {"name": "Dixon Middle", "siteCode1": 549, "siteCode2": 366}
+]
+}
