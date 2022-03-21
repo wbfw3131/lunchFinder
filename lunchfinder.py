@@ -1,5 +1,6 @@
 import requests
 import datetime
+import json
 
 
 
@@ -27,15 +28,9 @@ def dayLunch(day: str = "today", school: str = "Provo High") -> str:
     # elif date.month >= (datetime.date.today().month + 1): # and datetime.date().today().day() < 20:
     #     return "I don't think the lunch for that month is posted yet"
 
-    school = school.strip()
-    if school == "Provo High":
-        siteCode = 550
-        siteCode2 = 368
-    elif school == "Dixon Middle":
-        siteCode = 549
-        siteCode2 = 366
+    siteCode1, siteCode2=getSchoolCodes(school)
 
-    content = makeRequest(siteCode, siteCode2, date)
+    content = makeRequest(siteCode1, siteCode2, date)
 
     for menu in content["data"]["menuTypes"]:
         menuName = menu["name"]
@@ -105,7 +100,18 @@ def makeRequest(siteCode1: int, siteCode2: int, date: datetime.datetime) -> dict
     rawContent = response.json()
     return rawContent
 
+def getSchoolCodes(schoolName: str) -> (str, str):
+    schoolName = schoolName.strip().title()
+    f = open("schools.json")
+    table = json.load(f)
+    for term in table["schools"]:
+        if term["name"].find(schoolName) != -1 or (term["name"] + " School").find(schoolName) != -1:
+            f.close()
+            return (term["siteCode1"], term["siteCode2"])
+    f.close()
+    raise RuntimeError("Can't find the school")
+
 if __name__ == "__main__":
     #print(dayLunch(day = "3/4/2022", school="Dixon Middle"))
     #print(dayLunch("7/4/2022"))
-    print(dayLunch())
+    print(dayLunch(school="Dixon Middle"))
