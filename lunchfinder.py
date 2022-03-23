@@ -33,34 +33,28 @@ def dayLunch(day: str = "today", school: str = "Provo High") -> str:
 
     content = makeRequest(siteCode1, siteCode2, date)
 
-    for menu in content["data"]["menuTypes"]:
-        menuName = menu["name"]
-        if menuName == "Lunch Menu" or menuName == "Main Line":
-            food = []
-            for item in menu["items"]:
-                food.append(item["product"]["name"].strip())
-            # makeLunch(food)
+    food = makeList(content)
 
-            if food == []:
-                if date.month >= (datetime.date.today().month + 1): #if the date is next month from today
-                    weekLater = date + datetime.timedelta(weeks=1)
-                    weekEarlier = date + datetime.timedelta(weeks=-1)
-                    #if makeRequest(siteCode1, siteCode2, weekLater)["data"]["menuTypes"][1]["name"] == "Lunch Menu":
-                    if makeRequest(siteCode1, siteCode2, weekLater)["data"]["menuTypes"][1]["items"] != []: #if there's anything for lunch a week after the selected date
-                        return "There's no school on that day" 
+    if food == []:
+        if date.month >= (datetime.date.today().month + 1): #if the date is next month from today
+            weekLater = date + datetime.timedelta(weeks=1)
+            weekEarlier = date + datetime.timedelta(weeks=-1)
+            #if makeRequest(siteCode1, siteCode2, weekLater)["data"]["menuTypes"][1]["name"] == "Lunch Menu":
+            if makeList(makeRequest(siteCode1, siteCode2, weekLater)) != []: #if there's anything for lunch a week after the selected date
+                return "There's no school on that day" 
+            else:
+                if weekEarlier.month == date.month:
+                    if makeList(makeRequest(siteCode1, siteCode2, weekEarlier)) != []: #if there's anything for lunch a week before the date
+                        return "There's no school on that day"
                     else:
-                        if weekEarlier.month == date.month:
-                            if makeRequest(siteCode1, siteCode2, weekEarlier)["data"]["menuTypes"][1]["items"] != []: #if there's anything for lunch a week before the date
-                                return "There's no school on that day"
-                            else:
-                                return "I don't think the lunch for that month is posted yet"
+                        return "I don't think the lunch for that month is posted yet"
 
-                        else:
-                            return "I don't think the lunch for that month is posted yet"
                 else:
-                    return "I don't think there's school on that day"
+                    return "I don't think the lunch for that month is posted yet"
+        else:
+            return "I don't think there's school on that day"
 
-            return makeLunch(food)
+    return makeLunch(food)
 
 
 def makeLunch(foodList: list) -> str:
@@ -110,6 +104,17 @@ def makeRequest(siteCode1: int, siteCode2: int, date: datetime.datetime) -> dict
     rawContent = response.json()
     return rawContent
 
+def makeList(rawContent: dict) -> list:
+    "Takes in the raw dictionary from an API request and puts all the items in a list"
+    for menu in rawContent["data"]["menuTypes"]:
+        menuName = menu["name"]
+        if menuName == "Lunch Menu" or menuName == "Main Line":
+            food = []
+            for item in menu["items"]:
+                food.append(item["product"]["name"].strip())
+            
+    return food
+
 def getSchoolCodes(schoolName: str) -> (str, str):
     """Takes in the name of a school and returns the site codes of that school"""
     schoolName = schoolName.strip().title()
@@ -124,5 +129,5 @@ def getSchoolCodes(schoolName: str) -> (str, str):
 
 if __name__ == "__main__":
     #print(dayLunch(day = "3/4/2022", school="Dixon Middle"))
-    #print(dayLunch("7/4/2022"))
-    print(dayLunch())
+    print(dayLunch("7/4/2022"))
+    #print(dayLunch())
