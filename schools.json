@@ -1,6 +1,9 @@
 {
     "schools":[
         {"name": "Provo High", "siteCode1": 550, "siteCode2": 368},
-        {"name": "Dixon Middle", "siteCode1": 549, "siteCode2": 366}
+        {"name": "Dixon Middle", "siteCode1": 549, "siteCode2": 366},
+        {"name": "Timpview High", "siteCode1": 550, "siteCode2": 369},
+        {"name": "Centennial Middle", "siteCode1": 549, "siteCode2": 365},
+        {"name": "Westridge Elementary", "siteCode1": 3639, "siteCode2": 1095}
 ]
 }
