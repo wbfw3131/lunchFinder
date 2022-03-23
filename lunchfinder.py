@@ -18,7 +18,7 @@ def dayLunch(day: str = "today", school: str = "Provo High") -> str:
     """Takes in a date string in MM/DD/YYYY format (or "today" or nothing)
 
     Returns a string with concatenated with all the items for lunch"""
-    if day == "today":
+    if day.lower() == "today":
         date = datetime.date.today()
         #print(date)
     else:
