@@ -15,9 +15,10 @@ import json
 
         
 def dayLunch(day: str = "today", school: str = "Provo High") -> str:
-    """Takes in a date string in MM/DD/YYYY format (or "today" or nothing)\n
+    """Takes in a date string in MM/DD/YYYY format (or "today" or nothing)
+
     Returns a string with concatenated with all the items for lunch"""
-    if day == "today":
+    if day.lower() == "today":
         date = datetime.date.today()
         #print(date)
     else:
@@ -32,30 +33,32 @@ def dayLunch(day: str = "today", school: str = "Provo High") -> str:
 
     content = makeRequest(siteCode1, siteCode2, date)
 
-    for menu in content["data"]["menuTypes"]:
-        menuName = menu["name"]
-        if menuName == "Lunch Menu" or menuName == "Main Line":
-            food = []
-            for item in menu["items"]:
-                food.append(item["product"]["name"].strip())
-            # makeLunch(food)
+    food = makeList(content)
 
-            if food == []:
-                if date.month >= (datetime.date.today().month + 1): #if the date is next month from today
-                    weekLater = date + datetime.timedelta(weeks=1)
-                    #if makeRequest(siteCode, siteCode2, weekLater)["data"]["menuTypes"][1]["name"] == "Lunch Menu":
-                    if makeRequest(siteCode, siteCode2, weekLater)["data"]["menuTypes"][1]["items"] != []: #if there's anything for lunch a week after the selected date
-                        return "There's no school on that day" 
+    if food == []:
+        if date.month >= (datetime.date.today().month + 1): #if the date is next month from today
+            weekLater = date + datetime.timedelta(weeks=1)
+            weekEarlier = date + datetime.timedelta(weeks=-1)
+            #if makeRequest(siteCode1, siteCode2, weekLater)["data"]["menuTypes"][1]["name"] == "Lunch Menu":
+            if makeList(makeRequest(siteCode1, siteCode2, weekLater)) != []: #if there's anything for lunch a week after the selected date
+                return "There's no school on that day" 
+            else:
+                if weekEarlier.month == date.month:
+                    if makeList(makeRequest(siteCode1, siteCode2, weekEarlier)) != []: #if there's anything for lunch a week before the date
+                        return "There's no school on that day"
                     else:
                         return "I don't think the lunch for that month is posted yet"
-                else:
-                    return "I don't think there's school on that day"
 
-            return makeLunch(food)
+                else:
+                    return "I don't think the lunch for that month is posted yet"
+        else:
+            return "I don't think there's school on that day"
+
+    return makeLunch(food)
 
 
 def makeLunch(foodList: list) -> str:
-    """Puts together all items from a list in a string"""
+    """Puts together all items from a list into a string"""
     terms = []
     first = True
     finalString = ""
@@ -76,7 +79,8 @@ def makeLunch(foodList: list) -> str:
 
 def makeRequest(siteCode1: int, siteCode2: int, date: datetime.datetime) -> dict:
     """Makes an api request with the site codes and date provided.
-    Site codes can be found in the url of the lunch menu you want"""
+    
+    Site codes can be found in the url of the lunch menu you want or from :func:`getSchoolCodes`"""
     endpoint = "https://api.isitesoftware.com/graphql"
     headers = {
         'authority': 'api.isitesoftware.com',
@@ -100,12 +104,26 @@ def makeRequest(siteCode1: int, siteCode2: int, date: datetime.datetime) -> dict
     rawContent = response.json()
     return rawContent
 
+def makeList(rawContent: dict) -> list:
+    "Takes in the raw dictionary from an API request and puts all the items in a list"
+    for menu in rawContent["data"]["menuTypes"]:
+
+        menuName = menu["name"]
+        if menuName == "Lunch Menu" or menuName == "Main Line":
+            food = []
+            for item in menu["items"]:
+                food.append(item["product"]["name"].strip())
+            
+    return food
+
 def getSchoolCodes(schoolName: str) -> (str, str):
+    """Takes in the name of a school and returns the site codes of that school"""
+
     schoolName = schoolName.strip().title()
     f = open("schools.json")
     table = json.load(f)
     for term in table["schools"]:
-        if term["name"].find(schoolName) != -1 or (term["name"] + " School").find(schoolName) != -1:
+        if term["name"].find(schoolName) != -1 or (term["name"] + " School").find(schoolName) != -1 or term["name"].find(schoolName.split(" ")[0]) != -1: #really only the last statement is needed since it'll be true if the others are, but keeping them here for now
             f.close()
             return (term["siteCode1"], term["siteCode2"])
     f.close()
