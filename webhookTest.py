@@ -8,6 +8,14 @@ import json
 #districtURL = "https://instructure-uploads.s3.amazonaws.com/account_17190000000000001/attachments/547468/pcsd-logo-website-header-x2.png"
 #fruitURL = "http://www.schoolnutritionandfitness.com/webmenus2/api/productController.php/img?filename=upload/fruit-107.jpg"
 #provoWallpaperURL = "https://itsmealsprovo.com/district/pcs/layout/provo_wallpaper.jpg"
+#dixonPawURL = "https://instructure-uploads.s3.amazonaws.com/account_17190000000000001/attachments/547674/dixon.png"
+#dixonHeaderURL = "https://dixon.provo.edu/wp-content/themes/dms-child/assets/images/header-logo.png"
+#dixonPawIconURL = "https://dixon.provo.edu/wp-content/themes/dms-child/assets/images/favicon.png"
+#timpviewLowQualIconURL = "https://timpview.provo.edu/wp-content/themes/timpview-child/assets/images/favicon.png"
+#timpviewT = "https://timpview.provo.edu/wp-content/themes/timpview-child/assets/images/header-logo.png"
+#centennialIconURL = "https://centennial.provo.edu/wp-content/themes/alyeska-child/favicon.png"
+#westridgeWrongColorsIconURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/favicon.png"
+#estridgeWildcatURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/header-logo.png"
 
 def main():
     message = dayLunch()
