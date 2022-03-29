@@ -107,6 +107,7 @@ def makeRequest(siteCode1: int, siteCode2: int, date: datetime.datetime) -> dict
 def makeList(rawContent: dict) -> list:
     "Takes in the raw dictionary from an API request and puts all the items in a list"
     for menu in rawContent["data"]["menuTypes"]:
+
         menuName = menu["name"]
         if menuName == "Lunch Menu" or menuName == "Main Line":
             food = []
@@ -117,6 +118,7 @@ def makeList(rawContent: dict) -> list:
 
 def getSchoolCodes(schoolName: str) -> (str, str):
     """Takes in the name of a school and returns the site codes of that school"""
+
     schoolName = schoolName.strip().title()
     f = open("schools.json")
     table = json.load(f)
