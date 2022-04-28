@@ -1,5 +1,5 @@
 #from urllib import response
-from lunchfinder import dayLunch
+from lunchfinder import dayLunch, School
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import json
 
@@ -17,15 +17,19 @@ import json
 #westridgeWrongColorsIconURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/favicon.png"
 #estridgeWildcatURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/header-logo.png"
 
-def main():
-    message = dayLunch()
+def main(schoolName: str):
+
+    school = School(schoolName)
+    # message = dayLunch(schoolStr=school)
+    message = dayLunch(schoolStr=schoolName)
 
     webhook = DiscordWebhook(url='https://discord.com/api/webhooks/948615440295419995/B3pEFTSZe2342e2q29uX8Kpki4wCrt-ZJ5QMCeOAREWPBJFLEhrwl0LEVpUb5n0sXgjU', content=message)
 
     # embed = DiscordEmbed(title="Today's Lunch", description=message, color='32a852')
     # embed.set_author(name="Provo High Lunch", icon_url="https://instructure-uploads.s3.amazonaws.com/account_17190000000000001/attachments/318015/bulldog.png")
     # embed.set_image(url="https://instructure-uploads.s3.amazonaws.com/account_17190000000000001/attachments/318015/bulldog.png")
-
+    webhook.avatar_url = school.imageURL
+    webhook.username = school.name + "'s Lunch"
 
     response = webhook.execute()
     # deleteLast(webhook)
@@ -43,4 +47,4 @@ def storeNew(webhook: DiscordWebhook):
     f.write(json.dumps({'lastMessage': webhook}))
 
 if __name__ == "__main__":
-    main()
+    main(input("What is the name of the school you want to know the lunch of? "))
