@@ -1,5 +1,6 @@
 #from urllib import response
-from lunchfinder import dayLunch, School
+from lunchfinder import dayLunch
+from school import School
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import json
 
@@ -21,7 +22,7 @@ def main(schoolName: str):
 
     school = School(schoolName)
     # message = dayLunch(schoolStr=school)
-    message = dayLunch(schoolStr=schoolName)
+    message = dayLunch(schoolStr=school)
 
     webhook = DiscordWebhook(url='https://discord.com/api/webhooks/948615440295419995/B3pEFTSZe2342e2q29uX8Kpki4wCrt-ZJ5QMCeOAREWPBJFLEhrwl0LEVpUb5n0sXgjU', content=message)
 

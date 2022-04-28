@@ -1,6 +1,6 @@
 import requests
 import datetime
-import json
+from school import School
 
 
 
@@ -12,35 +12,16 @@ import json
 #     for item in menu["items"]:
 #         print(item["product"]["name"])
 
-class School:
-    def __init__(self, schoolName: str):
-        schoolName = schoolName.__str__().strip().title()
-        f = open("schools.json")
-        table = json.load(f)
-        name = None
-        code1 = None
-        code2 = None
-        imageURL = None 
-        for term in table["schools"]:
-            if term["name"].find(schoolName) != -1 or (term["name"] + " School").find(schoolName) != -1 or term["name"].find(schoolName.split(" ")[0]) != -1: #really only the last statement is needed since it'll be true if the others are, but keeping them here for now
-                name = term["name"]
-                code1 = term["siteCode1"]
-                code2 = term["siteCode2"]
-                imageURL = term["iconURL"]
-        f.close()
-        if code1 == None:
-            raise RuntimeError("Can't find that school")
-        else:
-            self.name = name
-            self.code1 = code1
-            self.code2 = code2
-            self.imageURL = imageURL
-
         
-def dayLunch(day: str = "today", schoolStr: str = "Provo High") -> str:
-    """Takes in a date string in MM/DD/YYYY format (or "today" or nothing)
+def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")) -> str:
+    """Takes in a date string in MM/DD/YYYY format (or "today")
 
-    Returns a string with concatenated with all the items for lunch"""
+    Returns a string concatenated with all the items for lunch (except milks)"""
+    if type(schoolStr) == str:
+        schoolQueried = School(schoolStr)
+    else:
+        schoolQueried = schoolStr
+
     if day.lower() == "today":
         date = datetime.date.today()
         #print(date)
@@ -48,33 +29,28 @@ def dayLunch(day: str = "today", schoolStr: str = "Provo High") -> str:
         date = datetime.datetime.strptime(day, '%m/%d/%Y')
 
     if datetime.date.weekday(date) == 5 or datetime.date.weekday(date) == 6:
-        return "There's no school on this day."
+        return "There's no school on that day."
     # elif date.month >= (datetime.date.today().month + 1): # and datetime.date().today().day() < 20:
     #     return "I don't think the lunch for that month is posted yet"
 
-    #siteCode1, siteCode2=getSchoolCodes(school)
-    school = School(schoolStr)
-
-    content = makeRequest(school, date)
+    content = makeRequest(schoolQueried, date)
 
     food = makeList(content)
 
-    if food == []:
+    if food == []: #figuring out why an empty response was returned
         if date.month >= (datetime.date.today().month + 1): #if the date is next month from today
             weekLater = date + datetime.timedelta(weeks=1)
             weekEarlier = date + datetime.timedelta(weeks=-1)
-            #if makeRequest(siteCode1, siteCode2, weekLater)["data"]["menuTypes"][1]["name"] == "Lunch Menu":
-            if makeList(makeRequest(school, weekLater)) != []: #if there's anything for lunch a week after the selected date
+            if makeList(makeRequest(schoolQueried, weekLater)) != []: #if there's anything for lunch a week after the selected date
                 return "There's no school on that day" 
             else:
                 if weekEarlier.month == date.month:
-                    if makeList(makeRequest(school, weekEarlier)) != []: #if there's anything for lunch a week before the date
+                    if makeList(makeRequest(schoolQueried, weekEarlier)) != []: #if there's anything for lunch a week before the date
                         return "There's no school on that day"
                     else:
                         return "I don't think the lunch for that month is posted yet"
-
                 else:
-                    return "I don't think the lunch for that month is posted yet"
+                    return "I don't think the lunch for that date is available anymore"
         else:
             return "I don't think there's school on that day"
 
@@ -102,7 +78,7 @@ def makeLunch(foodList: list) -> str:
     return(finalString)
 
 #def makeRequest(siteCode1: int, siteCode2: int, date: datetime.datetime) -> dict:
-def makeRequest(school: School, date: datetime.datetime) -> dict:
+def makeRequest(schoolQueried: School, date: datetime.datetime) -> dict:
     """Makes an api request with the site codes and date provided.
     
     Site codes can be found in the url of the lunch menu you want or from :func:`getSchoolCodes`"""
@@ -124,7 +100,7 @@ def makeRequest(school: School, date: datetime.datetime) -> dict:
     }
     data = {
     'query': '\nquery mobileSchoolPage($date: String!, $site_code: String!, $site_code2: String!, $useDepth2: Boolean!) {\n  menuTypes(publish_location: "mobile", site:{\n      depth_0_id: $site_code,\n      depth_1_id: $site_code2\n  }) {\n    id\n    name\n    formats\n    items(start_date: $date, end_date: $date) {\n      date,\n      product {\n          id\nname\nallergen_dairy\nallergen_egg\nallergen_fish\nallergen_gluten\nallergen_milk\nallergen_peanut\nallergen_pork\nallergen_shellfish\nallergen_soy\nallergen_treenuts\nallergen_vegetarian\nallergen_wheat\nallergen_other\ncustomAllergens\nimage_url1\nimage_url2\npdf_url\nportion_size\nportion_size_unit\nprice\nprod_allergens\nprod_calcium\nprod_calories\nprod_carbs\nprod_cholesterol\nprod_dietary_fiber\nprod_gram_weight\nprod_iron\nprod_mfg\nprod_protein\nprod_sat_fat\nprod_sodium\nprod_total_fat\nprod_trans_fat\nprod_vita_iu\nprod_vita_re\nprod_vitc\nsugar\nis_ancillary\nmealsPlusCustomAllergens\nmealsPlusCustomAttributes\n\n          long_description\n          hide_on_mobile\n      }\n    }\n  }\n  listMenus(publish_location:"mobile", site:{\n      depth_0_id: $site_code,\n      depth_1_id: $site_code2\n  }) {\n    id\n    name\n    items{\n      product {\n        id\nname\nallergen_dairy\nallergen_egg\nallergen_fish\nallergen_gluten\nallergen_milk\nallergen_peanut\nallergen_pork\nallergen_shellfish\nallergen_soy\nallergen_treenuts\nallergen_vegetarian\nallergen_wheat\nallergen_other\ncustomAllergens\nimage_url1\nimage_url2\npdf_url\nportion_size\nportion_size_unit\nprice\nprod_allergens\nprod_calcium\nprod_calories\nprod_carbs\nprod_cholesterol\nprod_dietary_fiber\nprod_gram_weight\nprod_iron\nprod_mfg\nprod_protein\nprod_sat_fat\nprod_sodium\nprod_total_fat\nprod_trans_fat\nprod_vita_iu\nprod_vita_re\nprod_vitc\nsugar\nis_ancillary\nmealsPlusCustomAllergens\nmealsPlusCustomAttributes\n\n        long_description\n        hide_on_mobile\n      }\n    }\n  }\n  pdfMenus(site:{\n      depth_0_id: $site_code\n  }) {\n    id\n    name\n    url\n  }\n  site (depth: 0, id: $site_code) @skip(if: $useDepth2) {\n    id,\n    parent_id,\n    name,\n    logo_url\n    organization {\n  id,\n  name,\n  logo_url\n  OnlineMenuDesignSettings {\n    customAllergens {\n        field\n        img\n        label\n        tooltip\n    }\n    mealsPlusCustomAllergens {\n      field\n      img\n      label\n      tooltip\n      mealsPlusId\n    }\n    mealsPlusCustomAttributes {\n      field\n      img\n      label\n      tooltip\n      mealsPlusId\n    }\n    disableAllergen\n    showAllergens\n    allergenFilterEnabled\n    ratingEmojiShow\n  }\n  SnafDistrict {\n    url_online_pay\n  }\n  SnafSettings {\n    enable_surveys\n    enable_announcements\n  }\n  OnlineOrderingSettings {\n    enableSlc\n    enableTlc\n  }\n  apps {\n    onlineordering {\n      enable_linq\n    }\n  }\n}\n  }\n  site2: site (depth: 1, id: $site_code2) @include(if: $useDepth2) {\n    id,\n    parent_id,\n    name,\n    logo_url,\n    organization {\n  id,\n  name,\n  logo_url\n  OnlineMenuDesignSettings {\n    customAllergens {\n        field\n        img\n        label\n        tooltip\n    }\n    mealsPlusCustomAllergens {\n      field\n      img\n      label\n      tooltip\n      mealsPlusId\n    }\n    mealsPlusCustomAttributes {\n      field\n      img\n      label\n      tooltip\n      mealsPlusId\n    }\n    disableAllergen\n    showAllergens\n    allergenFilterEnabled\n    ratingEmojiShow\n  }\n  SnafDistrict {\n    url_online_pay\n  }\n  SnafSettings {\n    enable_surveys\n    enable_announcements\n  }\n  OnlineOrderingSettings {\n    enableSlc\n    enableTlc\n  }\n  apps {\n    onlineordering {\n      enable_linq\n    }\n  }\n}\n  }\n}\n',
-    'variables': '{"date":"%s","site_code":"%i","site_code2":"%i","useDepth2":true}' % (date.strftime('%m/%d/%Y'), school.code1, school.code2)} #siteCode1, siteCode2)}
+    'variables': '{"date":"%s","site_code":"%i","site_code2":"%i","useDepth2":true}' % (date.strftime('%m/%d/%Y'), schoolQueried.code1, schoolQueried.code2)}
     response = requests.post(endpoint, headers=headers, data=data)
     rawContent = response.json()
     return rawContent
@@ -140,19 +116,6 @@ def makeList(rawContent: dict) -> list:
                 food.append(item["product"]["name"].strip())
             
     return food
-
-def getSchoolCodes(schoolName: str) -> (str, str):
-    """Takes in the name of a school and returns the site codes of that school"""
-
-    schoolName = schoolName.strip().title()
-    f = open("schools.json")
-    table = json.load(f)
-    for term in table["schools"]:
-        if term["name"].find(schoolName) != -1 or (term["name"] + " School").find(schoolName) != -1 or term["name"].find(schoolName.split(" ")[0]) != -1: #really only the last statement is needed since it'll be true if the others are, but keeping them here for now
-            f.close()
-            return (term["siteCode1"], term["siteCode2"])
-    f.close()
-    raise RuntimeError("Can't find the school")
 
 if __name__ == "__main__":
     #print(dayLunch(day = "3/4/2022", school="Dixon Middle"))
