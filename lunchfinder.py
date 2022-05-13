@@ -54,27 +54,31 @@ def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")
         else:
             return "I don't think there's school on that day"
 
-    return makeLunch(food)
+    return makeLunch(food, date)
 
 
-def makeLunch(foodList: list) -> str:
+def makeLunch(foodList: list, date: datetime.datetime) -> str:
     """Puts together all items from a list into a string"""
     terms = []
     first = True
     finalString = ""
     for food in foodList:
         if first:
-            finalString = (f"Today for lunch is **{food}** with ")
+            if date == datetime.date.today():
+                finalString = f"Today for lunch is **{food}** with "
+            elif date == datetime.date.today() + datetime.timedelta(days=1):
+                finalString = f"Tomorrow for lunch is **{food}** with "
+            else:
+                finalString = f"The lunch on {date.strftime('%B')} {date.day}th is {food} with "
             first = False
         else:
             if (food.find("Milk") == -1):
                 terms.append(f"{food}")
-    lastTerm = str(terms.pop(len(terms) - 1))
+    # lastTerm = str(terms.pop(len(terms) - 1))
+    terms[len(terms)-1] = "and " + terms[len(terms)-1]
     joiner = ", "
     joined = joiner.join(terms)
-    finalString = finalString + joined
-    joiner = ", and "
-    finalString = finalString + joiner + lastTerm + "."
+    finalString = finalString + joined + "."
     return(finalString)
 
 #def makeRequest(siteCode1: int, siteCode2: int, date: datetime.datetime) -> dict:
@@ -119,5 +123,5 @@ def makeList(rawContent: dict) -> list:
 
 if __name__ == "__main__":
     #print(dayLunch(day = "3/4/2022", school="Dixon Middle"))
-    #print(dayLunch("7/4/2022"))
+    # print(dayLunch("5/16/2022"))
     print(dayLunch())
