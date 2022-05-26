@@ -37,6 +37,8 @@ def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")
 
     food = makeList(content)
 
+    #TODO
+    #Make sure logic is sound
     if food == []: #figuring out why an empty response was returned
         if date.month >= (datetime.date.today().month + 1): #if the date is next month from today
             weekLater = date + datetime.timedelta(weeks=1)
@@ -69,7 +71,9 @@ def makeLunch(foodList: list, date: datetime.datetime) -> str:
             elif date == datetime.date.today() + datetime.timedelta(days=1):
                 finalString = f"Tomorrow for lunch is **{food}** with "
             else:
-                finalString = f"The lunch on {date.strftime('%B')} {date.day}th is {food} with "
+                # TODO
+                # fix below to change *th to work with other numbers
+                finalString = f"The lunch on {date.strftime('%B')} {date.day}th is *{food}* with "
             first = False
         else:
             if (food.find("Milk") == -1):
@@ -122,6 +126,6 @@ def makeList(rawContent: dict) -> list:
     return food
 
 if __name__ == "__main__":
-    #print(dayLunch(day = "3/4/2022", school="Dixon Middle"))
+    # print(dayLunch(day = "5/2/2022", schoolStr="Timpview"))
     # print(dayLunch("5/16/2022"))
     print(dayLunch())
