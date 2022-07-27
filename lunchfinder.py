@@ -29,7 +29,7 @@ def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")
         date = datetime.datetime.strptime(day, '%m/%d/%Y')
 
     if datetime.date.weekday(date) == 5 or datetime.date.weekday(date) == 6:
-        return "There's no school on that day."
+        return "That day isn't a weekday, so there's no school"
     # elif date.month >= (datetime.date.today().month + 1): # and datetime.date().today().day() < 20:
     #     return "I don't think the lunch for that month is posted yet"
 
@@ -118,7 +118,7 @@ def makeList(rawContent: dict) -> list:
     for menu in rawContent["data"]["menuTypes"]:
 
         menuName = menu["name"]
-        if menuName == "Lunch Menu" or menuName == "Main Line":
+        if menuName in ("Lunch Menu", "Main Line"):
             food = []
             for item in menu["items"]:
                 food.append(item["product"]["name"].strip())
