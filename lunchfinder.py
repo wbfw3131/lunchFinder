@@ -3,7 +3,8 @@ import datetime
 from school import School
 
 
-
+# TODO
+# make consistent use of date, not datetime
 
 # print(response.json())
 
@@ -67,21 +68,25 @@ def makeLunch(foodList: list, date: datetime.datetime) -> str:
     for food in foodList:
         if first:
             if date == datetime.date.today():
-                finalString = f"Today for lunch is **{food}** with "
+                finalString = f"Today's lunch is **{food}** with "
             elif date == datetime.date.today() + datetime.timedelta(days=1):
-                finalString = f"Tomorrow for lunch is **{food}** with "
+                finalString = f"Tomorrow's lunch will be **{food}** with "
+            elif date == datetime.date.today() - datetime.timedelta(days=1):
+                finalString = f"Yesterday's lunch was **{food} with "
             else:
                 # TODO
-                # fix below to change *th to work with other numbers
-                finalString = f"The lunch on {date.strftime('%B')} {date.day}th is *{food}* with "
+                # add dynamic days of the week for current week
+                if date > datetime.date.today():
+                    finalString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} will be *{food}* with "
+                else:
+                    finalString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} was *{food}* with "
             first = False
         else:
             if (food.find("Milk") == -1):
                 terms.append(f"{food}")
     # lastTerm = str(terms.pop(len(terms) - 1))
     terms[len(terms)-1] = "and " + terms[len(terms)-1]
-    joiner = ", "
-    joined = joiner.join(terms)
+    joined = ", ".join(terms)
     finalString = finalString + joined + "."
     return(finalString)
 
@@ -125,7 +130,20 @@ def makeList(rawContent: dict) -> list:
             
     return food
 
+def findNumSuffix(num: int) -> str:
+    """Finds the suffix of a number and returns it
+    
+    Ex: 1 returns 'st', 3 returns 'rd'"""
+
+    #corr. #s:  0     1     2     3     4     5     6     7     8     9
+    suffixes = ["th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"]
+    num %= 100
+    if num > 10 and num < 14:
+        return "th"
+    else:
+        return suffixes[num%10]
+
 if __name__ == "__main__":
     # print(dayLunch(day = "5/2/2022", schoolStr="Timpview"))
-    # print(dayLunch("5/16/2022"))
-    print(dayLunch())
+    print(dayLunch("8/19/2022"))
+    # print(dayLunch())
