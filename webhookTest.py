@@ -3,6 +3,8 @@ from lunchfinder import dayLunch
 from school import School
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import json
+import os
+import dotenv
 
 #greenBulldogURL = "https://instructure-uploads.s3.amazonaws.com/account_17190000000000001/attachments/998339/Green%20Collar%20Bulldog.png"
 #normalBulldogURL = "https://instructure-uploads.s3.amazonaws.com/account_17190000000000001/attachments/318015/bulldog.png"
@@ -21,10 +23,21 @@ import json
 def main(schoolName: str):
 
     school = School(schoolName)
-    # message = dayLunch(schoolStr=school)
     message = dayLunch(schoolStr=school)
+    
+    # if os.DirEntry.is_file(os.path.join(os.path.dirname(__file__), ".env")):
+    if dotenv.find_dotenv() != "":
+        if dotenv.dotenv_values() != {}:
+            dotenv.load_dotenv()
+            print("Successfully loaded .env file")
+        else:
+            print("You have a .env file, but there's nothing defined inside")
 
-    webhook = DiscordWebhook(url='https://discord.com/api/webhooks/948615440295419995/B3pEFTSZe2342e2q29uX8Kpki4wCrt-ZJ5QMCeOAREWPBJFLEhrwl0LEVpUb5n0sXgjU', content=message)
+    webhookURL = os.getenv("DISCORD_WEBHOOK_URL")
+    if webhookURL == None:
+        raise RuntimeError("Could not find an environment variable for the webhook URL")
+
+    webhook = DiscordWebhook(url=webhookURL, content=message)
 
     # embed = DiscordEmbed(title="Today's Lunch", description=message, color='32a852')
     # embed.set_author(name="Provo High Lunch", icon_url="https://instructure-uploads.s3.amazonaws.com/account_17190000000000001/attachments/318015/bulldog.png")
