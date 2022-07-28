@@ -72,14 +72,14 @@ def makeLunch(foodList: list, date: datetime.datetime) -> str:
             elif date == datetime.date.today() + datetime.timedelta(days=1):
                 finalString = f"Tomorrow's lunch will be **{food}** with "
             elif date == datetime.date.today() - datetime.timedelta(days=1):
-                finalString = f"Yesterday's lunch was **{food} with "
+                finalString = f"Yesterday's lunch was **{food}** with "
             else:
                 # TODO
                 # add dynamic days of the week for current week
                 if date > datetime.date.today():
-                    finalString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} will be *{food}* with "
+                    finalString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} will be **{food}** with "
                 else:
-                    finalString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} was *{food}* with "
+                    finalString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} was **{food}** with "
             first = False
         else:
             if (food.find("Milk") == -1):
@@ -94,7 +94,7 @@ def makeLunch(foodList: list, date: datetime.datetime) -> str:
 def makeRequest(schoolQueried: School, date: datetime.datetime) -> dict:
     """Makes an api request with the site codes and date provided.
     
-    Site codes can be found in the url of the lunch menu you want or from :func:`getSchoolCodes`"""
+    Site codes can be found in the url of the lunch menu you want or from the corresponding school in `schools.json`"""
     endpoint = "https://api.isitesoftware.com/graphql"
     headers = {
         'authority': 'api.isitesoftware.com',
