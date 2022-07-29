@@ -3,11 +3,6 @@ import datetime
 from school import School
 
 
-# TODO
-# make consistent use of date, not datetime
-
-# print(response.json())
-
 
 # def parseItems(menu):
 #     for item in menu["items"]:
@@ -27,7 +22,7 @@ def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")
         date = datetime.date.today()
         #print(date)
     else:
-        date = datetime.datetime.strptime(day, '%m/%d/%Y')
+        date = datetime.datetime.strptime(day, '%m/%d/%Y').date()
 
     if datetime.date.weekday(date) == 5 or datetime.date.weekday(date) == 6:
         return "That day isn't a weekday, so there's no school"
@@ -60,7 +55,7 @@ def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")
     return makeLunch(food, date)
 
 
-def makeLunch(foodList: list, date: datetime.datetime) -> str:
+def makeLunch(foodList: list, date: datetime.date) -> str:
     """Puts together all items from a list into a string"""
     terms = []
     first = True
@@ -76,6 +71,11 @@ def makeLunch(foodList: list, date: datetime.datetime) -> str:
             else:
                 # TODO
                 # add dynamic days of the week for current week
+
+                # TODO
+                # use datetime.datetime.now().timestamp() to format dates for Discord; ex: <t:1659125077>
+                # help here: https://hammertime.cyou
+
                 if date > datetime.date.today():
                     finalString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} will be **{food}** with "
                 else:
@@ -91,7 +91,7 @@ def makeLunch(foodList: list, date: datetime.datetime) -> str:
     return(finalString)
 
 #def makeRequest(siteCode1: int, siteCode2: int, date: datetime.datetime) -> dict:
-def makeRequest(schoolQueried: School, date: datetime.datetime) -> dict:
+def makeRequest(schoolQueried: School, date: datetime.date) -> dict:
     """Makes an api request with the site codes and date provided.
     
     Site codes can be found in the url of the lunch menu you want or from the corresponding school in `schools.json`"""
@@ -145,5 +145,5 @@ def findNumSuffix(num: int) -> str:
 
 if __name__ == "__main__":
     # print(dayLunch(day = "5/2/2022", schoolStr="Timpview"))
-    print(dayLunch("8/19/2022"))
-    # print(dayLunch())
+    # print(dayLunch("8/19/2022"))
+    print(dayLunch())
