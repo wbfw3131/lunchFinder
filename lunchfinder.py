@@ -127,8 +127,7 @@ def makeList(rawContent: dict) -> list:
             food = []
             for item in menu["items"]:
                 food.append(item["product"]["name"].strip())
-            
-    return food
+            return food
 
 def findNumSuffix(num: int) -> str:
     """Finds the suffix of a number and returns it
@@ -136,7 +135,7 @@ def findNumSuffix(num: int) -> str:
     Ex: 1 returns 'st', 3 returns 'rd'"""
 
     #corr. #s:  0     1     2     3     4     5     6     7     8     9
-    suffixes = ["th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"]
+    suffixes = ("th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th")
     num %= 100
     if num > 10 and num < 14:
         return "th"
@@ -145,5 +144,5 @@ def findNumSuffix(num: int) -> str:
 
 if __name__ == "__main__":
     # print(dayLunch(day = "5/2/2022", schoolStr="Timpview"))
-    # print(dayLunch("8/19/2022"))
+    # print(dayLunch("8/16/2022"))
     print(dayLunch())
