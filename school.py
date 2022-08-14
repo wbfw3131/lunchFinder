@@ -2,7 +2,7 @@ import json
 
 class School:
     def __init__(self, schoolName: str):
-        schoolName = schoolName.__str__().strip().title()
+        schoolName = str(schoolName).strip().title()
         f = open("schools.json")
         table = json.load(f)
         name = None
@@ -18,7 +18,7 @@ class School:
                 imageURL = term["iconURL"]
         f.close()
         if code1 == None:
-            raise RuntimeError("Can't find that school")
+            raise ValueError("Can't find the specified school")
         else:
             self.name = name
             self.code1 = code1
