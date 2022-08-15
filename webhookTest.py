@@ -2,7 +2,6 @@
 from lunchfinder import dayLunch
 from school import School
 from discord_webhook import DiscordWebhook, DiscordEmbed
-import json
 import os
 import dotenv
 
@@ -50,15 +49,6 @@ def main(schoolName: str):
     # storeNew(response)
 
 
-def deleteLast(webhook: DiscordWebhook):
-    f = open('lastMessage.json')
-    data = json.load(f)
-    lastMessage = data['lastMessage']
-    webhook.delete(lastMessage)
-
-def storeNew(webhook: DiscordWebhook):
-    f = open('lastMessage.json', 'w')
-    f.write(json.dumps({'lastMessage': webhook}))
 
 if __name__ == "__main__":
     main(input("What is the name of the school you want to know the lunch of? "))
