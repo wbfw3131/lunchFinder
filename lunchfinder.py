@@ -35,6 +35,8 @@ def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")
 
     #TODO
     #Make sure logic is sound
+    #TODO
+    #Make error strings have dynamic dates
     if food == []: #figuring out why an empty response was returned
         if date.month >= (datetime.date.today().month + 1): #if the date is next month from today
             weekLater = date + datetime.timedelta(weeks=1)
@@ -56,7 +58,7 @@ def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")
 
 
 def makeLunch(foodList: list, date: datetime.date) -> str:
-    """Puts together all items from a list into a string"""
+    """Puts together all food items from a list into a string"""
     terms = []
     first = True
     finalString = ""
@@ -69,17 +71,25 @@ def makeLunch(foodList: list, date: datetime.date) -> str:
             elif date == datetime.date.today() - datetime.timedelta(days=1):
                 finalString = f"Yesterday's lunch was **{food}** with "
             else:
-                # TODO
-                # add dynamic days of the week for current week
+                if date < datetime.date.today():
+                    timePreposition = "was"
+                else:
+                    timePreposition = "will be"
+
+                # formula to get date of Monday of the week
+                recentMonday = datetime.date.today() - datetime.timedelta(days = datetime.date.today().weekday())
+
+                # strf code reference: https://strftime.org
+
+                if (date - recentMonday) < datetime.timedelta(days=5) and (date - recentMonday) > datetime.timedelta(): #if the date isn't farther than the friday of the this week
+                    finalString = f"The lunch on {date.strftime('%A')} {timePreposition} **{food}** with "
+                else:
+                    finalString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} {timePreposition} **{food}** with "
 
                 # TODO
                 # use datetime.datetime.now().timestamp() to format dates for Discord; ex: <t:1659125077>
                 # help here: https://hammertime.cyou
 
-                if date > datetime.date.today():
-                    finalString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} will be **{food}** with "
-                else:
-                    finalString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} was **{food}** with "
             first = False
         else:
             if (food.find("Milk") == -1):
