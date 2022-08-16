@@ -60,44 +60,42 @@ def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")
 def makeLunch(foodList: list, date: datetime.date) -> str:
     """Puts together all food items from a list into a string"""
     terms = []
-    first = True
-    finalString = ""
-    for food in foodList:
-        if first:
-            if date == datetime.date.today():
-                finalString = f"Today's lunch is **{food}** with "
-            elif date == datetime.date.today() + datetime.timedelta(days=1):
-                finalString = f"Tomorrow's lunch will be **{food}** with "
-            elif date == datetime.date.today() - datetime.timedelta(days=1):
-                finalString = f"Yesterday's lunch was **{food}** with "
-            else:
-                if date < datetime.date.today():
-                    timePreposition = "was"
-                else:
-                    timePreposition = "will be"
+    preString = ""
+    entree = foodList.pop(0)
 
-                # formula to get date of Monday of the week
-                recentMonday = datetime.date.today() - datetime.timedelta(days = datetime.date.today().weekday())
-
-                # strf code reference: https://strftime.org
-
-                if (date - recentMonday) < datetime.timedelta(days=5) and (date - recentMonday) > datetime.timedelta(): #if the date isn't farther than the friday of the this week
-                    finalString = f"The lunch on {date.strftime('%A')} {timePreposition} **{food}** with "
-                else:
-                    finalString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} {timePreposition} **{food}** with "
-
-                # TODO
-                # use datetime.datetime.now().timestamp() to format dates for Discord; ex: <t:1659125077>
-                # help here: https://hammertime.cyou
-
-            first = False
+    if date == datetime.date.today():
+        preString = f"Today's lunch is **{entree}** with "
+    elif date == datetime.date.today() + datetime.timedelta(days=1):
+        preString = f"Tomorrow's lunch will be **{entree}** with "
+    elif date == datetime.date.today() - datetime.timedelta(days=1):
+        preString = f"Yesterday's lunch was **{entree}** with "
+    else:
+        if date < datetime.date.today():
+            timePreposition = "was"
         else:
-            if (food.find("Milk") == -1):
-                terms.append(f"{food}")
-    # lastTerm = str(terms.pop(len(terms) - 1))
+            timePreposition = "will be"
+
+        # formula to get date of Monday of the week
+        recentMonday = datetime.date.today() - datetime.timedelta(days = datetime.date.today().weekday())
+
+        # strf code reference: https://strftime.org
+
+        if (date - recentMonday) < datetime.timedelta(days=5) and (date - recentMonday) > datetime.timedelta(): #if the date isn't farther than the friday of the this week
+            preString = f"The lunch on {date.strftime('%A')} {timePreposition} **{food}** with "
+        else:
+            preString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} {timePreposition} **{food}** with "
+
+        # TODO
+        # use datetime.datetime.now().timestamp() to format dates for Discord; ex: <t:1659125077>
+        # help here: https://hammertime.cyou
+
+    for food in foodList:
+        if (food.find("Milk") == -1):
+            terms.append(food)
+
     terms[len(terms)-1] = "and " + terms[len(terms)-1]
     joined = ", ".join(terms)
-    finalString = finalString + joined + "."
+    finalString = preString + joined + "."
     return(finalString)
 
 #def makeRequest(siteCode1: int, siteCode2: int, date: datetime.datetime) -> dict:
@@ -154,5 +152,5 @@ def findNumSuffix(num: int) -> str:
 
 if __name__ == "__main__":
     # print(dayLunch(day = "5/2/2022", schoolStr="Timpview"))
-    # print(dayLunch("8/16/2022"))
-    print(dayLunch())
+    print(dayLunch("8/16/2022"))
+    # print(dayLunch())
