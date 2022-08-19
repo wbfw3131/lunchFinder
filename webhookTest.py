@@ -1,9 +1,7 @@
-#from urllib import response
 from lunchfinder import dayLunch
 from school import School
 from discord_webhook import DiscordWebhook, DiscordEmbed
-import json
-import os
+import os, sys
 import dotenv
 
 #greenBulldogURL = "https://instructure-uploads.s3.amazonaws.com/account_17190000000000001/attachments/998339/Green%20Collar%20Bulldog.png"
@@ -50,15 +48,11 @@ def main(schoolName: str):
     # storeNew(response)
 
 
-def deleteLast(webhook: DiscordWebhook):
-    f = open('lastMessage.json')
-    data = json.load(f)
-    lastMessage = data['lastMessage']
-    webhook.delete(lastMessage)
-
-def storeNew(webhook: DiscordWebhook):
-    f = open('lastMessage.json', 'w')
-    f.write(json.dumps({'lastMessage': webhook}))
 
 if __name__ == "__main__":
-    main(input("What is the name of the school you want to know the lunch of? "))
+    if len(sys.argv) == 1:
+        schoolStr = input("What is the name of the school you want to know the lunch of? ")
+    else:
+        schoolStr = " ".join(sys.argv[1:])
+
+    main(schoolStr)

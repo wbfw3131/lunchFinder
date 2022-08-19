@@ -1,9 +1,9 @@
-import json
+import json, os
 
 class School:
     def __init__(self, schoolName: str):
         schoolName = str(schoolName).strip().title()
-        f = open("schools.json")
+        f = open(os.path.join(os.path.dirname(__file__), "schools.json"))
         table = json.load(f)
         name = None
         code1 = None
