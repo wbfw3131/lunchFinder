@@ -81,9 +81,9 @@ def makeLunch(foodList: list, date: datetime.date) -> str:
         # strf code reference: https://strftime.org
 
         if (date - recentMonday) < datetime.timedelta(days=5) and (date - recentMonday) > datetime.timedelta(): #if the date isn't farther than the friday of the this week
-            preString = f"The lunch on {date.strftime('%A')} {timePreposition} **{food}** with "
+            preString = f"The lunch on {date.strftime('%A')} {timePreposition} **{entree}** with "
         else:
-            preString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} {timePreposition} **{food}** with "
+            preString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} {timePreposition} **{entree}** with "
 
         # TODO
         # use datetime.datetime.now().timestamp() to format dates for Discord; ex: <t:1659125077>
