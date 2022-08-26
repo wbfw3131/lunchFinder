@@ -1,6 +1,7 @@
 from lunchfinder import dayLunch
 from school import School
-from discord_webhook import DiscordWebhook, DiscordEmbed
+from discord_webhook import DiscordWebhook
+from urllib.parse import urlparse
 import os, sys
 import dotenv
 
@@ -18,22 +19,22 @@ import dotenv
 #westridgeWrongColorsIconURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/favicon.png"
 #westridgeWildcatURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/header-logo.png"
 
-def main(schoolName: str):
+#                                         | None
+def main(schoolName: str, webhookURL: str):
 
     school = School(schoolName)
     message = dayLunch(schoolStr=school)
     
-    # if os.DirEntry.is_file(os.path.join(os.path.dirname(__file__), ".env")):
-    if dotenv.find_dotenv() != "":
-        if dotenv.dotenv_values() != {}:
-            dotenv.load_dotenv()
-            print("Successfully loaded .env file")
+    #check to see if webhookURL is a valid Discord webhook link
+    if type(webhookURL) == str:
+        if urlparse(webhookURL).netloc=="discord.com" and urlparse(webhookURL).path.startswith("/api/webhooks/"):
+            print("Webhook URL passed in, not checking environment variables")
         else:
-            print("You have a .env file, but there's nothing defined inside")
-
-    webhookURL = os.getenv("DISCORD_WEBHOOK_URL")
-    if webhookURL == None:
-        raise RuntimeError("Could not find an environment variable for the webhook URL")
+            print("Webhook URL passed in doesn't seem valid, trying environment variables")
+            webhookURL = getEnvVar()
+    else:
+        webhookURL = getEnvVar()
+        
 
     webhook = DiscordWebhook(url=webhookURL, content=message)
 
@@ -43,16 +44,34 @@ def main(schoolName: str):
     webhook.avatar_url = school.imageURL
     webhook.username = school.name + "'s Lunch"
 
-    response = webhook.execute()
-    # deleteLast(webhook)
-    # storeNew(response)
+    webhook.execute()
+
+def getEnvVar():
+    # if os.DirEntry.is_file(os.path.join(os.path.dirname(__file__), ".env")):
+    if dotenv.find_dotenv() != "":
+        if dotenv.dotenv_values() != {}:
+            dotenv.load_dotenv(override=True)
+            print("Successfully loaded .env file")
+        else:
+            print("You have a .env file, but there's nothing defined inside")
+
+    envVar = os.getenv("DISCORD_WEBHOOK_URL")
+    if envVar == None:
+        raise ValueError("Could not find an environment variable for the webhook URL")
+    return envVar
+    
 
 
 
 if __name__ == "__main__":
+    webhookLink = None
     if len(sys.argv) == 1:
         schoolStr = input("What is the name of the school you want to know the lunch of? ")
     else:
+        testURL = urlparse(sys.argv[-1])
+        if testURL.netloc=="discord.com" and testURL.path.startswith("/api/webhooks/"):
+            webhookLink = sys.argv.pop(-1)
+
         schoolStr = " ".join(sys.argv[1:])
 
-    main(schoolStr)
+    main(schoolStr, webhookLink)
