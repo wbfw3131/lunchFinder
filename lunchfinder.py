@@ -152,5 +152,5 @@ def findNumSuffix(num: int) -> str:
 
 if __name__ == "__main__":
     # print(dayLunch(day = "5/2/2022", schoolStr="Timpview"))
-    print(dayLunch("8/16/2022"))
-    # print(dayLunch())
+    # print(dayLunch("8/16/2022"))
+    print(dayLunch())
