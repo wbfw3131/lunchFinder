@@ -19,11 +19,14 @@ import dotenv
 #westridgeWrongColorsIconURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/favicon.png"
 #westridgeWildcatURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/header-logo.png"
 
-#                                         | None
+#                                         | None     requires Python 3.10
 def main(schoolName: str, webhookURL: str):
 
     school = School(schoolName)
     message = dayLunch(schoolStr=school)
+    if not message.hasLunch:
+        print("There is no lunch today, will not send a message")
+        os.abort()
     
     #check to see if webhookURL is a valid Discord webhook link
     if type(webhookURL) == str:
@@ -36,7 +39,7 @@ def main(schoolName: str, webhookURL: str):
         webhookURL = getEnvVar()
         
 
-    webhook = DiscordWebhook(url=webhookURL, content=message)
+    webhook = DiscordWebhook(url=webhookURL, content=message.content)
 
     # embed = DiscordEmbed(title="Today's Lunch", description=message, color='32a852')
     # embed.set_author(name="Provo High Lunch", icon_url="https://instructure-uploads.s3.amazonaws.com/account_17190000000000001/attachments/318015/bulldog.png")
