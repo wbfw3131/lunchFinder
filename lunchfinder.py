@@ -25,7 +25,7 @@ def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")
         date = datetime.datetime.strptime(day, '%m/%d/%Y').date()
 
     if datetime.date.weekday(date) == 5 or datetime.date.weekday(date) == 6:
-        return "That day isn't a weekday, so there's no school"
+        return f"{date.strftime('%A')} is a weekend, so there's no school."
     # elif date.month >= (datetime.date.today().month + 1): # and datetime.date().today().day() < 20:
     #     return "I don't think the lunch for that month is posted yet"
 
@@ -152,5 +152,5 @@ def findNumSuffix(num: int) -> str:
 
 if __name__ == "__main__":
     # print(dayLunch(day = "5/2/2022", schoolStr="Timpview"))
-    print(dayLunch("8/16/2022"))
-    # print(dayLunch())
+    # print(dayLunch("10/2/2022"))
+    print(dayLunch())
