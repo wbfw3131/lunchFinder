@@ -1,6 +1,7 @@
 import requests
 import datetime
 from school import School
+from message import Message
 
 
 
@@ -9,7 +10,7 @@ from school import School
 #         print(item["product"]["name"])
 
         
-def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")) -> str:
+def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")) -> Message:
     """Takes in a date string in MM/DD/YYYY format (or "today")
 
     Returns a string concatenated with all the items for lunch (except milks)"""
@@ -25,7 +26,7 @@ def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")
         date = datetime.datetime.strptime(day, '%m/%d/%Y').date()
 
     if datetime.date.weekday(date) == 5 or datetime.date.weekday(date) == 6:
-        return "That day isn't a weekday, so there's no school"
+        return Message(f"{date.strftime('%A')} is a weekend, so there's no school.", False)
     # elif date.month >= (datetime.date.today().month + 1): # and datetime.date().today().day() < 20:
     #     return "I don't think the lunch for that month is posted yet"
 
@@ -42,17 +43,17 @@ def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")
             weekLater = date + datetime.timedelta(weeks=1)
             weekEarlier = date + datetime.timedelta(weeks=-1)
             if makeList(makeRequest(schoolQueried, weekLater)) != []: #if there's anything for lunch a week after the selected date
-                return "There's no school on that day" 
+                return Message("There's no school on that day", False)
             else:
                 if weekEarlier.month == date.month:
                     if makeList(makeRequest(schoolQueried, weekEarlier)) != []: #if there's anything for lunch a week before the date
-                        return "There's no school on that day"
+                        return Message("There's no school on that day", False)
                     else:
-                        return "I don't think the lunch for that month is posted yet"
+                        return Message("I don't think the lunch for that month is posted yet", False)
                 else:
-                    return "I don't think the lunch for that date is available anymore"
+                    return Message("I don't think the lunch for that date is available anymore", False)
         else:
-            return "I don't think there's school on that day"
+            return Message("I don't think there's school on that day", False)
 
     return makeLunch(food, date)
 
@@ -96,7 +97,7 @@ def makeLunch(foodList: list, date: datetime.date) -> str:
     terms[len(terms)-1] = "and " + terms[len(terms)-1]
     joined = ", ".join(terms)
     finalString = preString + joined + "."
-    return(finalString)
+    return(Message(finalString))
 
 #def makeRequest(siteCode1: int, siteCode2: int, date: datetime.datetime) -> dict:
 def makeRequest(schoolQueried: School, date: datetime.date) -> dict:
@@ -152,5 +153,5 @@ def findNumSuffix(num: int) -> str:
 
 if __name__ == "__main__":
     # print(dayLunch(day = "5/2/2022", schoolStr="Timpview"))
-    # print(dayLunch("8/16/2022"))
+    # print(dayLunch("10/3/2022"))
     print(dayLunch())
