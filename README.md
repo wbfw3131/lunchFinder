@@ -6,7 +6,6 @@ To install the required dependencies, run:
 ```shell
 pip install -r requirements.txt
 ```
-> Note: At the moment, the dependencies are only required for the Discord webhook functionality
 
 To setup Discord webhook functionality, either:
 - add your webhook URL as an environment variable named `DISCORD_WEBHOOK_URL` to your system, or
