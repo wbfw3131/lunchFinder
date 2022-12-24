@@ -48,7 +48,7 @@ def main(schoolName: str, webhookURL: str | None):
 
     webhook.execute()
 
-def getEnvVar():
+def getEnvVar() -> str:
     # if os.DirEntry.is_file(os.path.join(os.path.dirname(__file__), ".env")):
     if dotenv.find_dotenv() != "":
         if dotenv.dotenv_values() != {}:
