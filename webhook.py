@@ -23,7 +23,7 @@ def main(schoolName: str, webhookURL: str | None):
 
     school = School(schoolName)
     message = dayLunch(schoolStr=school)
-    if not message.hasLunch:
+    if not message.hasFood:
         print("There is no lunch today, will not send a message")
         os.abort()
     

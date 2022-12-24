@@ -2,6 +2,7 @@ import requests
 import datetime
 from school import School
 from message import Message
+from menuTypes import MenuTypes, findMenu
 
 
 
@@ -10,7 +11,7 @@ from message import Message
 #         print(item["product"]["name"])
 
         
-def dayLunch(day: str = "today", schoolStr: str | School = School("Provo High")) -> Message:
+def dayLunch(day: str = "today", schoolStr: str | School = School("Provo High"), menu: MenuTypes | str = MenuTypes.LUNCH) -> Message:
     """Takes in a date string in MM/DD/YYYY format (or "today")
 
     Returns a string concatenated with all the items for lunch (except milks)"""
@@ -25,28 +26,34 @@ def dayLunch(day: str = "today", schoolStr: str | School = School("Provo High"))
     else:
         date = datetime.datetime.strptime(day, '%m/%d/%Y').date()
 
+    #TODO fix this to look in a tuple instead
     if datetime.date.weekday(date) == 5 or datetime.date.weekday(date) == 6:
         return Message(f"{date.strftime('%A')} is a weekend, so there's no school.", False)
     # elif date.month >= (datetime.date.today().month + 1): # and datetime.date().today().day() < 20:
     #     return "I don't think the lunch for that month is posted yet"
 
+    if type(menu) != MenuTypes:
+        menu = findMenu(menu)
+
     content = makeRequest(schoolQueried, date)
 
-    food = makeList(content)
+    food = makeList(content, menu)
 
     #TODO
     #Make sure logic is sound
     #TODO
     #Make error strings have dynamic dates
     if food == []: #figuring out why an empty response was returned
-        if date.month >= (datetime.date.today().month + 1): #if the date is next month from today
+        # TODO this month comparison system breaks with December and January
+        # if date.month >= (datetime.date.today().month + 1):        was previously
+        if date.month >= (datetime.date.today() + datetime.timedelta(weeks=4)).month: #if the date is next month from today, uses 4 weeks to represent a month
             weekLater = date + datetime.timedelta(weeks=1)
             weekEarlier = date + datetime.timedelta(weeks=-1)
-            if makeList(makeRequest(schoolQueried, weekLater)) != []: #if there's anything for lunch a week after the selected date
+            if makeList(makeRequest(schoolQueried, weekLater), menu) != []: #if there's anything for lunch a week after the selected date
                 return Message("There's no school on that day", False)
             else:
                 if weekEarlier.month == date.month:
-                    if makeList(makeRequest(schoolQueried, weekEarlier)) != []: #if there's anything for lunch a week before the date
+                    if makeList(makeRequest(schoolQueried, weekEarlier), menu) != []: #if there's anything for lunch a week before the date
                         return Message("There's no school on that day", False)
                     else:
                         return Message("I don't think the lunch for that month is posted yet", False)
@@ -55,21 +62,21 @@ def dayLunch(day: str = "today", schoolStr: str | School = School("Provo High"))
         else:
             return Message("I don't think there's school on that day", False)
 
-    return makeLunch(food, date)
+    return makeLunch(food, date, menu)
 
 
-def makeLunch(foodList: list, date: datetime.date) -> str:
+def makeLunch(foodList: list, date: datetime.date, menu: MenuTypes) -> str:
     """Puts together all food items from a list into a string"""
     terms = []
     preString = ""
     entree = foodList.pop(0)
 
     if date == datetime.date.today():
-        preString = f"Today's lunch is **{entree}** with "
+        preString = f"Today's {menu.name.lower()} is **{entree}** with "
     elif date == datetime.date.today() + datetime.timedelta(days=1):
-        preString = f"Tomorrow's lunch will be **{entree}** with "
+        preString = f"Tomorrow's {menu.name.lower()} will be **{entree}** with "
     elif date == datetime.date.today() - datetime.timedelta(days=1):
-        preString = f"Yesterday's lunch was **{entree}** with "
+        preString = f"Yesterday's {menu.name.lower()} was **{entree}** with "
     else:
         if date < datetime.date.today():
             timePreposition = "was"
@@ -82,9 +89,9 @@ def makeLunch(foodList: list, date: datetime.date) -> str:
         # strf code reference: https://strftime.org
 
         if (date - recentMonday) < datetime.timedelta(days=5) and (date - recentMonday) > datetime.timedelta(): #if the date isn't farther than the friday of the this week
-            preString = f"The lunch on {date.strftime('%A')} {timePreposition} **{entree}** with "
+            preString = f"The {menu.name.lower()} on {date.strftime('%A')} {timePreposition} **{entree}** with "
         else:
-            preString = f"The lunch on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} {timePreposition} **{entree}** with "
+            preString = f"The {menu.name.lower()} on {date.strftime('%B')} {date.day}{findNumSuffix(date.day)} {timePreposition} **{entree}** with "
 
         # TODO
         # use datetime.datetime.now().timestamp() to format dates for Discord; ex: <t:1659125077>
@@ -127,14 +134,14 @@ def makeRequest(schoolQueried: School, date: datetime.date) -> dict:
     rawContent = response.json()
     return rawContent
 
-def makeList(rawContent: dict) -> list:
+def makeList(rawContent: dict, menu: MenuTypes) -> list:
     "Takes in the raw dictionary from an API request and puts all the items in a list"
-    for menu in rawContent["data"]["menuTypes"]:
+    for menuM in rawContent["data"]["menuTypes"]:
 
-        menuName = menu["name"]
-        if menuName in ("Lunch Menu", "Main Line"):
+        menuName = menuM["name"]
+        if menuName in menu.value:
             food = []
-            for item in menu["items"]:
+            for item in menuM["items"]:
                 food.append(item["product"]["name"].strip())
             return food
 
@@ -152,6 +159,5 @@ def findNumSuffix(num: int) -> str:
         return suffixes[num%10]
 
 if __name__ == "__main__":
-    # print(dayLunch(day = "5/2/2022", schoolStr="Timpview"))
-    print(dayLunch("1/3/2023"))
-    # print(dayLunch())
+    # print(dayLunch("1/2/2023", menu="breakfast"))
+    print(dayLunch())
