@@ -10,7 +10,7 @@ from message import Message
 #         print(item["product"]["name"])
 
         
-def dayLunch(day: str = "today", schoolStr: str or School = School("Provo High")) -> Message:
+def dayLunch(day: str = "today", schoolStr: str | School = School("Provo High")) -> Message:
     """Takes in a date string in MM/DD/YYYY format (or "today")
 
     Returns a string concatenated with all the items for lunch (except milks)"""
@@ -153,5 +153,5 @@ def findNumSuffix(num: int) -> str:
 
 if __name__ == "__main__":
     # print(dayLunch(day = "5/2/2022", schoolStr="Timpview"))
-    # print(dayLunch("10/3/2022"))
-    print(dayLunch())
+    print(dayLunch("1/3/2023"))
+    # print(dayLunch())

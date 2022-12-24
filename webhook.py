@@ -19,8 +19,7 @@ import dotenv
 #westridgeWrongColorsIconURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/favicon.png"
 #westridgeWildcatURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/header-logo.png"
 
-#                                         | None     requires Python 3.10
-def main(schoolName: str, webhookURL: str):
+def main(schoolName: str, webhookURL: str | None):
 
     school = School(schoolName)
     message = dayLunch(schoolStr=school)
