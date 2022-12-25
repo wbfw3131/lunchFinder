@@ -1,5 +1,6 @@
 from lunchfinder import dayLunch
 from school import School
+from menuTypes import MenuTypes
 from discord_webhook import DiscordWebhook
 from urllib.parse import urlparse
 import os, sys
@@ -19,12 +20,11 @@ import dotenv
 #westridgeWrongColorsIconURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/favicon.png"
 #westridgeWildcatURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/header-logo.png"
 
-#                                         | None     requires Python 3.10
-def main(schoolName: str, webhookURL: str):
+def main(schoolName: str, webhookURL: str | None, menu: str | MenuTypes = MenuTypes.LUNCH):
 
     school = School(schoolName)
-    message = dayLunch(schoolStr=school)
-    if not message.hasLunch:
+    message = dayLunch(schoolStr=school, menu=menu)
+    if not message.hasFood:
         print("There is no lunch today, will not send a message")
         os.abort()
     
@@ -49,7 +49,7 @@ def main(schoolName: str, webhookURL: str):
 
     webhook.execute()
 
-def getEnvVar():
+def getEnvVar() -> str:
     # if os.DirEntry.is_file(os.path.join(os.path.dirname(__file__), ".env")):
     if dotenv.find_dotenv() != "":
         if dotenv.dotenv_values() != {}:
@@ -68,13 +68,22 @@ def getEnvVar():
 
 if __name__ == "__main__":
     webhookLink = None
-    if len(sys.argv) == 1:
+    menuType = None
+    sys.argv.pop(0)
+    if len(sys.argv) == 0:
         schoolStr = input("What is the name of the school you want to know the lunch of? ")
     else:
         testURL = urlparse(sys.argv[-1])
         if testURL.netloc=="discord.com" and testURL.path.startswith("/api/webhooks/"):
             webhookLink = sys.argv.pop(-1)
 
-        schoolStr = " ".join(sys.argv[1:])
+        for index in (0, -1):
+            arg = sys.argv[index]
+            for menu in MenuTypes:
+                if arg.lower().find(menu.name.lower()) != -1:
+                    menuType = sys.argv.pop(index)
+                    break
 
-    main(schoolStr, webhookLink)
+        schoolStr = " ".join(sys.argv[0:])
+
+    main(schoolStr, webhookLink, menuType)
