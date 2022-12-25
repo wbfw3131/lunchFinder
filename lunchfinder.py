@@ -15,10 +15,11 @@ def dayLunch(day: str = "today", schoolStr: str | School = School("Provo High"),
     """Takes in a date string in MM/DD/YYYY format (or "today")
 
     Returns a string concatenated with all the items for lunch (except milks)"""
-    if type(schoolStr) == str:
-        schoolQueried = School(schoolStr)
-    else:
+
+    if type(schoolStr) == School:
         schoolQueried = schoolStr
+    else:
+        schoolQueried = School(schoolStr)
 
     if day.lower() == "today":
         date = datetime.date.today()
