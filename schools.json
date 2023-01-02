@@ -4,6 +4,7 @@
         {"name": "Dixon Middle", "siteCode1": 549, "siteCode2": 366, "iconURL": "https://dixon.provo.edu/wp-content/themes/dms-child/assets/images/favicon.png"},
         {"name": "Timpview High", "siteCode1": 550, "siteCode2": 369, "iconURL": "https://timpview.provo.edu/wp-content/themes/timpview-child/assets/images/favicon.png"},
         {"name": "Centennial Middle", "siteCode1": 549, "siteCode2": 365, "iconURL": "https://centennial.provo.edu/wp-content/themes/alyeska-child/favicon.png"},
-        {"name": "Westridge Elementary", "siteCode1": 3639, "siteCode2": 1095, "iconURL": "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/header-logo.png"}
+        {"name": "Westridge Elementary", "siteCode1": 3639, "siteCode2": 1095, "iconURL": "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/header-logo.png"},
+        {"name": "Rock Canyon Elementary", "siteCode1": 3639, "siteCode2": 1090, "iconURL": "https://rockcanyon.provo.edu/wp-content/themes/rockCanyon-child/assets/images/header-logo.png"}
     ]
 }
