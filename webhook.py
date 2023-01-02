@@ -3,6 +3,7 @@ from school import School
 from menuTypes import MenuTypes
 from discord_webhook import DiscordWebhook
 from urllib.parse import urlparse
+from re import search
 import os, sys
 import dotenv
 
@@ -20,12 +21,12 @@ import dotenv
 #westridgeWrongColorsIconURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/favicon.png"
 #westridgeWildcatURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/header-logo.png"
 
-def main(schoolName: str, webhookURL: str | None, menu: str | MenuTypes = MenuTypes.LUNCH):
+def main(schoolName: str, webhookURL: str | None, menu: str | MenuTypes = MenuTypes.LUNCH, date: str = "today"):
 
     school = School(schoolName)
-    message = dayLunch(schoolStr=school, menu=menu)
+    message = dayLunch(schoolStr=school, menu=menu, day=date)
     if not message.hasFood:
-        print("There is no lunch today, will not send a message")
+        print("There is no lunch that day, will not send a message")
         os.abort()
     
     #check to see if webhookURL is a valid Discord webhook link
@@ -68,22 +69,38 @@ def getEnvVar() -> str:
 
 if __name__ == "__main__":
     webhookLink = None
-    menuType = None
+
+    # defaults
+    menuType = MenuTypes.LUNCH
+    date = "today"
+
+    #remove unneeded arg
     sys.argv.pop(0)
+
     if len(sys.argv) == 0:
         schoolStr = input("What is the name of the school you want to know the lunch of? ")
     else:
+        # check if webhook link
         testURL = urlparse(sys.argv[-1])
         if testURL.netloc=="discord.com" and testURL.path.startswith("/api/webhooks/"):
             webhookLink = sys.argv.pop(-1)
 
-        for index in (0, -1):
-            arg = sys.argv[index]
+        for arg in sys.argv.copy():
+
+            # check if date
+            matchTest = search("today|tomorrow|(.{2}|.{1})\/(.{2}|.{1})\/(.{4}|.{2})", arg.lower())
+            if matchTest:
+                date = arg[matchTest.start():matchTest.end()]
+                sys.argv.remove(arg)
+                continue
+
+            # check if menu
             for menu in MenuTypes:
                 if arg.lower().find(menu.name.lower()) != -1:
-                    menuType = sys.argv.pop(index)
+                    menuType = menu
+                    sys.argv.remove(arg)
                     break
 
         schoolStr = " ".join(sys.argv[0:])
 
-    main(schoolStr, webhookLink, menuType)
+    main(schoolStr, webhookLink, menuType, date)
