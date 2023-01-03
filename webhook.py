@@ -4,7 +4,8 @@ from menuTypes import MenuTypes
 from discord_webhook import DiscordWebhook
 from urllib.parse import urlparse
 from re import search
-import os, sys
+from os import abort, getenv
+from sys import argv
 import dotenv
 
 #greenBulldogURL = "https://instructure-uploads.s3.amazonaws.com/account_17190000000000001/attachments/998339/Green%20Collar%20Bulldog.png"
@@ -27,7 +28,7 @@ def main(schoolName: str, webhookURL: str | None, menu: str | MenuTypes = MenuTy
     message = dayLunch(schoolStr=school, menu=menu, day=date)
     if not message.hasFood:
         print("There is no lunch that day, will not send a message")
-        os.abort()
+        abort()
     
     #check to see if webhookURL is a valid Discord webhook link
     if type(webhookURL) == str:
@@ -59,7 +60,7 @@ def getEnvVar() -> str:
         else:
             print("You have a .env file, but there's nothing defined inside")
 
-    envVar = os.getenv("DISCORD_WEBHOOK_URL")
+    envVar = getenv("DISCORD_WEBHOOK_URL")
     if envVar == None:
         raise ValueError("Could not find an environment variable for the webhook URL")
     return envVar
@@ -75,32 +76,35 @@ if __name__ == "__main__":
     date = "today"
 
     #remove unneeded arg
-    sys.argv.pop(0)
+    argv.pop(0)
 
-    if len(sys.argv) == 0:
+    if len(argv) == 0:
         schoolStr = input("What is the name of the school you want to know the lunch of? ")
     else:
-        # check if webhook link
-        testURL = urlparse(sys.argv[-1])
-        if testURL.netloc=="discord.com" and testURL.path.startswith("/api/webhooks/"):
-            webhookLink = sys.argv.pop(-1)
-
-        for arg in sys.argv.copy():
+        for arg in argv.copy():
 
             # check if date
             matchTest = search("today|tomorrow|(.{2}|.{1})\/(.{2}|.{1})\/(.{4}|.{2})", arg.lower())
             if matchTest:
                 date = arg[matchTest.start():matchTest.end()]
-                sys.argv.remove(arg)
+                argv.remove(arg)
+                continue
+
+            # check if webhook link
+            testURL = urlparse(arg)
+            if testURL.netloc=="discord.com" and testURL.path.startswith("/api/webhooks/"):
+                webhookLink = arg
+                argv.remove(arg)
                 continue
 
             # check if menu
             for menu in MenuTypes:
                 if arg.lower().find(menu.name.lower()) != -1:
                     menuType = menu
-                    sys.argv.remove(arg)
+                    argv.remove(arg)
                     break
 
-        schoolStr = " ".join(sys.argv[0:])
+        # make school from remaining args
+        schoolStr = " ".join(argv[0:])
 
     main(schoolStr, webhookLink, menuType, date)
