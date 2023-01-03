@@ -12,7 +12,7 @@ from menuTypes import MenuTypes, findMenu
 
         
 def dayLunch(day: str = "today", schoolStr: str | School = School("Provo High"), menu: MenuTypes | str = MenuTypes.LUNCH) -> Message:
-    """Takes in a date string in MM/DD/YYYY format (or "today")
+    """Takes in a date string in MM/DD/YYYY format (or "today" or "tomorrow")
 
     Returns a string concatenated with all the items for lunch (except milks)"""
 
@@ -24,6 +24,8 @@ def dayLunch(day: str = "today", schoolStr: str | School = School("Provo High"),
     if day.lower() == "today":
         date = datetime.date.today()
         #print(date)
+    elif day.lower() == "tomorrow":
+        date = datetime.date.today() + datetime.timedelta(days=1)
     else:
         date = datetime.datetime.strptime(day, '%m/%d/%Y').date()
 

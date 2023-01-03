@@ -19,11 +19,27 @@ DISCORD_WEBHOOK_URL = https://discord.com/api/webhooks/...
 
 ## Usage
 
-After setup, you can run [lunchfinder.py](lunchfinder.py) and [webhook.py](webhook.py) by themselves and they will ask for the proper arguments. [webhook.py](webhook.py) also accepts command-line arguments for school names and webhook URLs. Here are some examples of valid calls:
+After setup, you can run [lunchfinder.py](lunchfinder.py) and [webhook.py](webhook.py) by themselves and they will ask for the proper arguments. 
+
+Dates need to be formatted as `MM/DD/YYYY`. The strings `"today"` and `"tomorrow"` can also be passed in as dates and will be processed correctly.
+
+[webhook.py](webhook.py) also accepts command-line arguments for school names, webhook URLs, dates, and menu types. 
+
+> Default variable values:
+>
+>  * Date: "today"
+>  * Menu: Lunch 
+>
+> These can be omited from command line args, however, you still need to specify a school name (and a webhook URL if you haven't added it to the environment). The variable order doesn't matter.
+
+
+Here are some examples of valid command line calls:
 ```shell
 python webhook.py Cool High School    #defaults to environment URL
 
-python webhook.py Nice Middle School https://discord.com/api/webhooks/...    #uses URL passed in
+python webhook.py 3/14/2015 Nice Middle School https://discord.com/api/webhooks/... 
+
+python webhook.py https://discord.com/api/... Breakfast tomorrow East High School
 ```
 
 
