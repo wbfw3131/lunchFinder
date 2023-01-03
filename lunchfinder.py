@@ -11,7 +11,7 @@ from menuTypes import MenuTypes, findMenu
 #         print(item["product"]["name"])
 
         
-def dayLunch(day: str = "today", schoolStr: str | School = School("Provo High"), menu: MenuTypes | str = MenuTypes.LUNCH) -> Message:
+def dayLunch(day: str = "today", schoolStr: str = School("Provo High"), menu: str = MenuTypes.LUNCH) -> Message:
     """Takes in a date string in MM/DD/YYYY format (or "today" or "tomorrow")
 
     Returns a string concatenated with all the items for lunch (except milks)"""

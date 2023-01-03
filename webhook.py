@@ -22,7 +22,7 @@ import dotenv
 #westridgeWrongColorsIconURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/favicon.png"
 #westridgeWildcatURL = "https://westridge.provo.edu/wp-content/themes/westridge-child/assets/images/header-logo.png"
 
-def main(schoolName: str, webhookURL: str | None, menu: str | MenuTypes = MenuTypes.LUNCH, date: str = "today"):
+def main(schoolName: str, webhookURL: str, menu: str = MenuTypes.LUNCH, date: str = "today"):
 
     school = School(schoolName)
     message = dayLunch(schoolStr=school, menu=menu, day=date)
