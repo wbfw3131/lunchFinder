@@ -70,7 +70,6 @@ def dayLunch(day: str = "today", schoolStr: str | School = "Provo High", menu: M
 
 def makeLunch(foodList: list, date: datetime.date, menu: MenuTypes) -> str:
     """Puts together all food items from a list into a string"""
-    terms = []
     preString = ""
     entree = foodList.pop(0)
 
@@ -100,12 +99,9 @@ def makeLunch(foodList: list, date: datetime.date, menu: MenuTypes) -> str:
         # use datetime.datetime.now().timestamp() to format dates for Discord; ex: <t:1659125077>
         # help here: https://hammertime.cyou
         
-    for food in foodList:
-        if (food.find("Milk") == -1):
-            terms.append(food)
 
-    terms[len(terms)-1] = "and " + terms[len(terms)-1]
-    joined = ", ".join(terms)
+    foodList[len(foodList)-1] = "and " + foodList[len(foodList)-1]
+    joined = ", ".join(foodList)
     finalString = preString + joined + "."
     return(Message(finalString))
 
@@ -173,13 +169,14 @@ def makeList(rawContent: dict, schoolQueried: School, menu: MenuTypes) -> list:
             menuName = menuM["name"]
             if menuName in menu.value:
                 for item in menuM["items"]:
+                    if (item["product"]["name"].find("Milk") == -1):
                         food.append(item["product"]["name"].strip())
                 return food
     
     elif schoolQueried.district == District.ALPINE.value:
         for item in rawContent["menu_items"]:
             if item["food"]:
-                food.append(item["food"]["name"])
+                food.append(item["food"]["name"].strip())
             else:
                 if item["text"] == "Entree options are one Sandwich item and one pizza item from below":
                     food.append("Sandwhiches and Pizza")
