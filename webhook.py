@@ -46,7 +46,7 @@ def main(schoolName: str, webhookURL: str | None, menu: str | MenuTypes = MenuTy
     # embed = DiscordEmbed(title="Today's Lunch", description=message, color='32a852')
     # embed.set_author(name="Provo High Lunch", icon_url="https://instructure-uploads.s3.amazonaws.com/account_17190000000000001/attachments/318015/bulldog.png")
     # embed.set_image(url="https://instructure-uploads.s3.amazonaws.com/account_17190000000000001/attachments/318015/bulldog.png")
-    webhook.avatar_url = school.imageURL
+    webhook.avatar_url = school.iconURL
     webhook.username = school.name + "'s Lunch"
 
     webhook.execute()
