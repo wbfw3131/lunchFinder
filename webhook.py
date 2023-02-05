@@ -1,6 +1,6 @@
 from lunchfinder import dayLunch
 from school import School
-from menuTypes import MenuTypes
+from menuTypes import *
 from discord_webhook import DiscordWebhook
 from urllib.parse import urlparse
 from re import search
@@ -25,6 +25,8 @@ import dotenv
 def main(schoolName: str, webhookURL: str | None, menu: str | MenuTypes = MenuTypes.LUNCH, date: str = "today"):
 
     school = School(schoolName)
+    if type(menu) != MenuTypes:
+        menu = findMenu(menu)
     message = dayLunch(schoolStr=school, menu=menu, day=date)
     if not message.hasFood:
         print("There is no lunch that day, will not send a message")
@@ -47,7 +49,7 @@ def main(schoolName: str, webhookURL: str | None, menu: str | MenuTypes = MenuTy
     # embed.set_author(name="Provo High Lunch", icon_url="https://instructure-uploads.s3.amazonaws.com/account_17190000000000001/attachments/318015/bulldog.png")
     # embed.set_image(url="https://instructure-uploads.s3.amazonaws.com/account_17190000000000001/attachments/318015/bulldog.png")
     webhook.avatar_url = school.iconURL
-    webhook.username = school.name + "'s Lunch"
+    webhook.username = school.name + f"'s {menu.name.title()}"
 
     webhook.execute()
 
