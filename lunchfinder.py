@@ -38,9 +38,7 @@ def dayLunch(day: str = "today", schoolStr: str | School = "Provo High", menu: M
     if type(menu) != MenuTypes:
         menu = findMenu(menu)
 
-    content = makeRequest(schoolQueried, date)
-
-    food = makeList(content, schoolQueried, menu)
+    food = makeRequest(schoolQueried, date, menu)
 
     #TODO
     #Make sure logic is sound
@@ -52,11 +50,11 @@ def dayLunch(day: str = "today", schoolStr: str | School = "Provo High", menu: M
         if date.month >= (datetime.date.today() + datetime.timedelta(weeks=4)).month: #if the date is next month from today, uses 4 weeks to represent a month
             weekLater = date + datetime.timedelta(weeks=1)
             weekEarlier = date + datetime.timedelta(weeks=-1)
-            if makeList(makeRequest(schoolQueried, weekLater), menu) != []: #if there's anything for lunch a week after the selected date
+            if makeRequest(schoolQueried, weekLater, menu) != []: #if there's anything for lunch a week after the selected date
                 return Message("There's no school on that day", False)
             else:
                 if weekEarlier.month == date.month:
-                    if makeList(makeRequest(schoolQueried, weekEarlier), menu) != []: #if there's anything for lunch a week before the date
+                    if makeRequest(schoolQueried, weekEarlier, menu) != []: #if there's anything for lunch a week before the date
                         return Message("There's no school on that day", False)
                     else:
                         return Message("I don't think the lunch for that month is posted yet", False)
@@ -105,11 +103,16 @@ def makeLunch(foodList: list, date: datetime.date, menu: MenuTypes) -> str:
     finalString = preString + joined + "."
     return(Message(finalString))
 
+#TODO combine makeRequest and makeList into one function for district simplicity
+
 #def makeRequest(siteCode1: int, siteCode2: int, date: datetime.datetime) -> dict:
-def makeRequest(schoolQueried: School, date: datetime.date) -> dict:
-    """Makes an api request with the site codes and date provided.
+def makeRequest(schoolQueried: School, date: datetime.date, menu: MenuTypes) -> list:
+    """Makes an api request with the site codes and date provided and creates a list of all menu items for the day.
     
     Site codes can be found in the url of the lunch menu you want or from the corresponding school in `schools.json`"""
+
+    food = []
+
     #TODO add switch and case statements
 
     #Provo returns all menus for a sepcified day, so we filter through the menus in `makelist()`
@@ -135,9 +138,18 @@ def makeRequest(schoolQueried: School, date: datetime.date) -> dict:
         'variables': '{"date":"%s","site_code":"%i","site_code2":"%i","useDepth2":true}' % (date.strftime('%m/%d/%Y'), schoolQueried.siteCode1, schoolQueried.siteCode2)}
         response = requests.post(endpoint, headers=headers, data=data)
         rawContent = response.json()
-        return rawContent
+
+        # find the correct menu
+        for menuM in rawContent["data"]["menuTypes"]:
+            menuName = menuM["name"]
+            if menuName in menu.value:
+                for item in menuM["items"]:
+                    if item["product"]["name"].find("Milk") == -1:
+                        food.append(item["product"]["name"].strip())
+                    elif item["product"]["name"] == "Ketchup, Individual Cup":
+                        food.append("Ketchup")
+                return food
     
-    #Alpine returns all of one type of a menu for week, so we find the right date in this method
     elif schoolQueried.district == District.ALPINE.value:
         headers = {
             'Accept': 'application/json, text/plain, */*',
@@ -151,41 +163,26 @@ def makeRequest(schoolQueried: School, date: datetime.date) -> dict:
             'x-nutrislice-origin': 'alpineschools.nutrislice.com',
             'default_menu_format': 'day'
         }
-        response = requests.get(f'https://alpineschools.api.nutrislice.com/menu/api/weeks/school/19505/menu-type/1488/{date.strftime("%Y/%m/%d")}', headers=headers)
+        # "https://alpineschools.api.nutrislice.com/menu/api/weeks/digest/school/pleasant-grove-high-school/menu-type/lunch/date/{year}/{month}/{day}" gives the items in an easier list, but it doesn't have sandwiches and pizza on Wednesdays
+        response = requests.get(f'https://alpineschools.api.nutrislice.com/menu/api/weeks/school/19505/menu-type/{menu.alpineID}/{date.strftime("%Y/%m/%d")}', headers=headers)
         rawContent = response.json()
 
+        #Alpine returns all of one type of a menu for week, so we find the right date in this method
         for weekday in rawContent["days"]:
             if weekday["date"] == date.strftime("%Y-%m-%d"):
-                return weekday
-
-        # return rawContent
-
-def makeList(rawContent: dict, schoolQueried: School, menu: MenuTypes) -> list:
-    "Takes in the raw dictionary from an API request and puts all the items in a list"
-    food = []
-
-    if schoolQueried.district == District.PROVO.value:
-        for menuM in rawContent["data"]["menuTypes"]:
-            menuName = menuM["name"]
-            if menuName in menu.value:
-                for item in menuM["items"]:
-                    if (item["product"]["name"].find("Milk") == -1):
-                        food.append(item["product"]["name"].strip())
+                #found the right day, make list now
+                for item in weekday["menu_items"]:
+                    if item["food"]:
+                        food.append(item["food"]["name"].strip())
+                    else:
+                        if item["text"] == "Entree options are one Sandwich item and one pizza item from below":
+                            food.append("Sandwhiches and Pizza")
+                        elif item["text"] == "Fruit Options Listed Below":
+                            food.append("Fruit")
+                        # else:
+                        #     menu.append(item["text"])
                 return food
     
-    elif schoolQueried.district == District.ALPINE.value:
-        for item in rawContent["menu_items"]:
-            if item["food"]:
-                food.append(item["food"]["name"].strip())
-            else:
-                if item["text"] == "Entree options are one Sandwich item and one pizza item from below":
-                    food.append("Sandwhiches and Pizza")
-                elif item["text"] == "Fruit Options Listed Below":
-                    food.append("Fruit")
-                # else:
-                #     menu.append(item["text"])
-        return food
-
 def findNumSuffix(num: int) -> str:
     """Finds the suffix of a number and returns it
     
@@ -201,4 +198,4 @@ def findNumSuffix(num: int) -> str:
 
 if __name__ == "__main__":
     # print(dayLunch("1/2/2023", menu="breakfast"))
-    print(dayLunch())
+    print(dayLunch(schoolStr="Pleasant Grove", menu=MenuTypes.LUNCH, day="3/3/2023"))
